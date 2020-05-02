@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'devtales-gierkinet-site-hosting
+
+  Sample SAM Template for devtales-gierkinet-site-hosting
+
+  '
+Parameters:
+  Environment:
+    Type: String
+    Description: test/prod etc
+    Default: prod
+  Product:
+    Type: String
+    Description: Name of the Product
+    Default: gierkinet
+  WebDomainName:
+    Type: String
+    Description: Domain name of the site
+    Default: games.devtales.net
+  MainCertificate:
+    Type: String
+    Description: AcmCertificateArn
+  HostedZoneId:
+    Type: String
+Resources:
+  ClientBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: ${Product}-${Environment}-s3-client
+      WebsiteConfiguration:
+        ErrorDocument: index.html
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  CloudfrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment:
+          Fn::Sub: ${Product}-${Environment}-oai-s3-content
+  CloudfrontS3PolicyUpdateLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      Principal: sns.amazonaws.com
+      SourceArn: arn:aws:sns:us-east-1:806199016981:AmazonIpSpaceChanged
+      FunctionName:
+        Fn::GetAtt:
+        - CloudfrontS3PolicyUpdateLambda
+        - Arn
+  CloudfrontS3PolicyUpdateLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+      Policies:
+      - PolicyName: AllowUpdateBucketPolicies
+        PolicyDocument:
+          Statement:
+          - Action:
+            - s3:PutBucketPolicy
+            Resource:
+            - Fn::GetAtt:
+              - ClientBucket
+              - Arn
+            Effect: Allow
+      - PolicyName: AllowSubscribeSns
+        PolicyDocument:
+          Statement:
+          - Action:
+            - sns:GetSubscriptionAttributes
+            - sns:Subscribe
+            Resource: '*'
+            Effect: Allow
+      - PolicyName: AllowLogs
+        PolicyDocument:
+          Statement:
+          - Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: '*'
+            Effect: Allow
+  CloudfrontS3PolicyUpdateLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      Environment:
+        Variables:
+          CLIENT_BUCKET_NAME:
+            Ref: ClientBucket
+      FunctionName:
+        Fn::Sub: ${AWS::StackName}-CloudfrontS3PolicyUpdateFunction
+      Runtime: python3.7
+      Role:
+        Fn::GetAtt:
+        - CloudfrontS3PolicyUpdateLambdaExecutionRole
+        - Arn
+      Timeout: 10
+      Code:
+        ZipFile: "import boto3\nimport hashlib\nimport json\nimport os\nfrom urllib.request\
+          \ import urlopen\n\nSERVICE = \"CLOUDFRONT\"\n\ndef lambda_handler(event,\
+          \ context):\n    print(\"Received event: \" + json.dumps(event, indent=2))\n\
+          \    message = json.loads(event['Records'][0]['Sns']['Message'])\n\n   \
+          \ ip_ranges = json.loads(get_ip_groups_json(message['url'], message['md5']))\n\
+          \n    global_cf_ranges = get_ranges_for_service(ip_ranges, SERVICE, \"GLOBAL\"\
+          )\n    region_cf_ranges = get_ranges_for_service(ip_ranges, SERVICE, \"\
+          REGION\")\n    combined_cf_ranges = global_cf_ranges + region_cf_ranges\n\
+          \n    buckets = [\n        os.environ.get('CLIENT_BUCKET_NAME')\n    ]\n\
+          \n    for bucket in buckets:\n        update_bucket_policy(combined_cf_ranges,\
+          \ bucket)\n\ndef get_ip_groups_json(url, expected_hash):\n    print(\"Updating\
+          \ from \" + url)\n\n    response = urlopen(url)\n    ip_json = response.read()\n\
+          \n    m = hashlib.md5()\n    m.update(ip_json)\n    hash = m.hexdigest()\n\
+          \n    if hash != expected_hash:\n        raise Exception('MD5 Mismatch:\
+          \ got ' + hash + ' expected ' + expected_hash)\n\n    return ip_json\n\n\
+          def get_ranges_for_service(ranges, service, subset):\n    service_ranges\
+          \ = list()\n    for prefix in ranges['prefixes']:\n        if prefix['service']\
+          \ == service and ((subset == prefix['region'] and subset == \"GLOBAL\")\
+          \ or (subset != 'GLOBAL' and prefix['region'] != 'GLOBAL')):\n         \
+          \   print('Found ' + service + ' region: ' + prefix['region'] + ' range:\
+          \ ' + prefix['ip_prefix'])\n            service_ranges.append(prefix['ip_prefix'])\n\
+          \n    return service_ranges\n\ndef update_bucket_policy(ip_range, bucket):\n\
+          \    s3 = boto3.resource('s3')\n\n    new_policy = generate_policy(ip_range,\
+          \ bucket)\n    s3.BucketPolicy(bucket).put(False, Policy=new_policy)\n\n\
+          def generate_policy(ip_range, bucket):\n    resource = \"arn:aws:s3:::{}/*\"\
+          .format(bucket)\n\n    policy = {\n        \"Version\": \"2008-10-17\",\n\
+          \        \"Id\": \"PolicyForCloudFrontPrivateContent\",\n        \"Statement\"\
+          : [\n            {\n                \"Sid\": \"1\",\n                \"\
+          Effect\": \"Allow\",\n                \"Principal\": \"*\",\n          \
+          \      \"Action\": \"s3:GetObject\",\n                \"Resource\": resource,\n\
+          \                \"Condition\": {\n                    \"IpAddress\": {\"\
+          aws:SourceIp\": ip_range}\n                }\n            }\n        ]\n\
+          \    }\n\n    return json.dumps(policy)\n"
+  WebDistribution:
+    Type: AWS::CloudFront::Distribution
+    DeletionPolicy: Retain
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        IPV6Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        Aliases:
+        - Ref: WebDomainName
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: MainCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.1_2016
+        Origins:
+        - Id: ClientOrigin
+          DomainName:
+            Fn::Select:
+            - 2
+            - Fn::Split:
+              - /
+              - Fn::GetAtt:
+                - ClientBucket
+                - WebsiteURL
+          CustomOriginConfig:
+            HTTPPort: 80
+            HTTPSPort: 443
+            OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - GET
+          - HEAD
+          Compress: true
+          DefaultTTL: 31536000
+          MinTTL: 31536000
+          MaxTTL: 31536000
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: true
+          TargetOriginId: ClientOrigin
+          ViewerProtocolPolicy: redirect-to-https
+        CustomErrorResponses:
+        - ErrorCachingMinTTL: 0
+          ErrorCode: 400
+        - ErrorCachingMinTTL: 0
+          ErrorCode: 403
+        - ErrorCachingMinTTL: 0
+          ErrorCode: 404
+          ResponseCode: 200
+          ResponsePagePath: /index.html
+        - ErrorCachingMinTTL: 0
+          ErrorCode: 500
+  DNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId:
+        Ref: HostedZoneId
+      RecordSets:
+      - Name:
+          Ref: WebDomainName
+        Type: A
+        AliasTarget:
+          HostedZoneId: Z2FDTNDATAQYW2
+          DNSName:
+            Fn::GetAtt:
+            - WebDistribution
+            - DomainName
