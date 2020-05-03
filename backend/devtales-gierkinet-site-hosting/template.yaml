@@ -19,11 +19,18 @@ Parameters:
     Type: String
     Description: "Domain name of the site"
     Default: "games.devtales.net"
+  LoginDomainName:
+    Type: String
+    Description: "Domain name of the site"
+    Default: "login.devtales.net"
   MainCertificate: 
     Type: String
     Description: AcmCertificateArn
   HostedZoneId:
     Type: String
+  CognitoCloudfrontDistribution:
+    Type: String
+    Description: Created as part of devtales-gierkinet-auth stack 
 
 
 Resources:
@@ -235,6 +242,11 @@ Resources:
       HostedZoneId:
         !Ref HostedZoneId
       RecordSets:
+      - Name: !Ref LoginDomainName
+        Type: A
+        AliasTarget:
+          HostedZoneId: Z2FDTNDATAQYW2 # This is always the hosted zone ID when you create an alias record that routes traffic to a CloudFront distribution
+          DNSName: !Ref CognitoCloudfrontDistribution
       - Name: !Ref WebDomainName
         Type: A
         AliasTarget:
