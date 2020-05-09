@@ -43,7 +43,6 @@ Resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       AllowedOAuthFlows:
-        - code
         - implicit
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthScopes:
@@ -53,13 +52,15 @@ Resources:
         - profile
       CallbackURLs:
         - !Sub ${OauthRedicrectUrl}/oauth/login
+        - http://localhost:3000/oauth/login
       ClientName: !Sub ${Product}-${Environment}-cognito--user-pool-client
       DefaultRedirectURI: !Sub ${OauthRedicrectUrl}/oauth/login
       LogoutURLs:
         - !Sub ${OauthRedicrectUrl}/oauth/logout
+        - http://localhost:3000/oauth/logout
       RefreshTokenValidity: 7
       SupportedIdentityProviders:
-        - COGNITO
+        - Google
       UserPoolId: !Ref UserPool
 
   UserPoolTokenClientDomain:
@@ -74,12 +75,9 @@ Resources:
     Type: AWS::Cognito::UserPoolIdentityProvider
     Properties: 
       AttributeMapping:
-        sub: "Username"
-        given_name: "Given Name"
-        family_name: "Family Name"
-        picture: "Picture"
-        name: "Name"
-        email: "Email"
+        email: "email"
+        picture: "picture"
+        name: "name"
       ProviderDetails:
         client_id: !Ref OauthGoogleClientId
         client_secret: !Ref OauthGoogleClientSecret

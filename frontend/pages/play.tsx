@@ -1,6 +1,9 @@
-import Head from 'next/head'
+import * as React from "react";
+import Head from 'next/head';
+import withForceLogin from "src/feature/auth/withForceLogin";
+import Link from "next/link";
 
-export default function Home() {
+function Home() {
   return (
     <div className="container">
       <Head>
@@ -10,11 +13,18 @@ export default function Home() {
 
       <main>
         <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
+          Welcome to PLAY
+          {' '}
+          <a href="https://nextjs.org">Next.js!</a>
         </h1>
+          <Link href="/">
+              <a>Back</a>
+          </Link>
 
         <p className="description">
-          Get started by editing <code>pages/index.js</code>
+          Get started by editing
+          {' '}
+          <code>pages/index.js</code>
         </p>
 
         <div className="grid">
@@ -54,12 +64,14 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by
+          {' '}
           <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
         </a>
       </footer>
 
-      <style jsx>{`
+      <style jsx>
+        {`
         .container {
           min-height: 100vh;
           padding: 0 0.5rem;
@@ -188,9 +200,11 @@ export default function Home() {
             flex-direction: column;
           }
         }
-      `}</style>
+      `}
+      </style>
 
-      <style jsx global>{`
+      <style jsx global>
+        {`
         html,
         body {
           padding: 0;
@@ -203,7 +217,10 @@ export default function Home() {
         * {
           box-sizing: border-box;
         }
-      `}</style>
+      `}
+      </style>
     </div>
-  )
+  );
 }
+
+export default withForceLogin(Home);
