@@ -8,7 +8,7 @@ import Hamburger from "./Hamburger";
 import Link from "next/link";
 import ProfileIndicator from "./ProfileIndicator";
 
-const NAV_HEIGHT = "100px";
+export const NAV_HEIGHT = "100px";
 
 const NavContainer = styledComponentWithProps(styled.div`
     height: ${NAV_HEIGHT};
@@ -105,14 +105,12 @@ const DesktopNavLinks = styledComponentWithProps(styled.div`
     position: relative;
     display: flex;
     flex-direction: row;
-    display: flex;
     justify-content: center;
     align-items: center;
     width: calc(100% - 200px);
 
     
     > a {
-        display: block;
         height: 100%;
         display: flex;
         width: 150px;
@@ -142,7 +140,7 @@ const NavLink = styledComponentWithProps(styled.a`
 
 const ProfileContainer = styledComponentWithProps(styled.div`
     position: absolute;
-    right: 15px;
+    right: 30px;
 `);
 
 const Links = () => (

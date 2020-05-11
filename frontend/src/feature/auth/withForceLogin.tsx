@@ -2,6 +2,9 @@ import * as React from "react";
 import {connect} from 'react-redux'
 import {authorizeThunk, selectAuthIsLoggedIn} from "./authSlice";
 import Logger from "src/feature/log/Logger";
+import CenterIn from "../../components/CenterIn";
+import Spinner from "../loading/Spinner";
+import LoginCallbackHandler from "./LoginCallbackHandler";
 
 
 type Props = {
@@ -32,7 +35,7 @@ const withForceLogin = <P extends object>(Component: React.ComponentType<P>) =>
                 Logger.getInstance().log("debug", "ZSD4m1", `withForceLogin ${JSON.stringify(this.props)}`);
                 const {isLoggedIn, ...rest} = this.props;
                 delete rest.triggerAuth;
-                return isLoggedIn ? <Component {...rest as P} /> : <div>Need to login</div>;
+                return isLoggedIn ? <Component {...rest as P} /> : <CenterIn><Spinner/></CenterIn>;
             }
         });
 

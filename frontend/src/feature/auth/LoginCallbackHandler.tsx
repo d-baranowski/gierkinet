@@ -11,7 +11,7 @@ interface Props {
     loginSuccess: (string) => void;
 }
 
-const LoginCallbackHandler: React.ComponentType<Props> = ({router, loginSuccess}) => {
+const LoginCallbackHandler: React.ComponentType<Props> = ({router, loginSuccess, children}) => {
     const params = parseOauthResponse(router.asPath);
     const predirectState = getPredicrectState();
 
@@ -26,7 +26,7 @@ const LoginCallbackHandler: React.ComponentType<Props> = ({router, loginSuccess}
         Logger.getInstance().log("info", "cIAT2v", `login failed`);
     }
 
-    return <>Login callback</>
+    return <>{children}</>
 };
 
 const mapStateToProps = () => ({
