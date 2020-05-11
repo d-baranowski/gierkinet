@@ -1,39 +1,25 @@
 import * as React from "react";
 import Head from 'next/head';
-import withForceLogin from "src/feature/auth/withForceLogin";
-import Link from "next/link";
+import MenuTile from "src/components/MenuTile";
+import TileMenu from "src/components/TileMenu";
+
 
 function Home() {
     return (
         <div className="container">
             <Head>
-                <title>Create Next App</title>
+                <title>Devtales Games</title>
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
-            <div>Index</div>
             <main>
-                <Link href="/play">
-                    <a>Play</a>
-                </Link>
+                <TileMenu>
+                    <MenuTile src="/chess.jpg" to="/play" title="Chess"/>
+                </TileMenu>
             </main>
 
             <footer>
-                <a
-                    href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Powered by
-                    {' '}
-                    <img src="/vercel.svg" alt="Vercel Logo" className="logo"/>
-                </a>
+               {/*TODO */}
             </footer>
-
-            {/*<style jsx>*/}
-            {/*</style>*/}
-
-            {/*<style jsx global>*/}
-            {/*</style>*/}
         </div>
     );
 }

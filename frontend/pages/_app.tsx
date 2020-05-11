@@ -1,21 +1,24 @@
 import {Provider} from 'react-redux'
 import App from 'next/app'
 import withRedux, {ReduxWrapperAppProps} from 'next-redux-wrapper';
-import {ThemeProvider} from 'styled-components'
 import * as React from "react";
 import {RootState} from "src/store/rootReducer";
 import {makeStore} from "src/store/store";
-import theme from "src/theme";
+import Navbar from "src/feature/navigation/Navbar";
+import theme from "src/style/theme";
+import {ThemeProvider} from "styled-components";
+
 
 class AppOverride extends App<ReduxWrapperAppProps<RootState>> {
     render() {
         const {Component, pageProps, router, store} = this.props;
         return (
-            <ThemeProvider theme={theme}>
-                <Provider store={store}>
+            <Provider store={store}>
+                <ThemeProvider theme={theme}>
+                    <Navbar/>
                     <Component router={router} {...pageProps} />
-                </Provider>
-            </ThemeProvider>
+                </ThemeProvider>
+            </Provider>
         )
     }
 }

@@ -37,6 +37,11 @@ export const selectAuthIsLoggedIn = createSelector(
     (isLoggedIn) => isLoggedIn
 );
 
+export const selectAuthProfilePicture = createSelector(
+    (state: RootState) => state.auth.userInfo.picture,
+    (picture) => picture
+);
+
 const auth = createSlice({
     name: 'auth',
     initialState,

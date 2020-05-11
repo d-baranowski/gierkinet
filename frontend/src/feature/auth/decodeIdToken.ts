@@ -16,7 +16,7 @@ export type IdTokenDecoded = {
     "iss": string;
     "cognito:username": string;
     "given_name": string;
-    "picture": string;
+    picture: string;
     "aud": string;
     "token_use": string;
     "auth_time": number;

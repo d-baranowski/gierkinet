@@ -11,7 +11,7 @@ class Logger {
     private constructor() {
     }
 
-    log(level, code, message) {
+    log(level, code, message): void {
         const activeLevel = Logger.hierarchy[this.level.toUpperCase()];
         const logLevel = Logger.hierarchy[level.toUpperCase()];
 
@@ -19,7 +19,7 @@ class Logger {
             return;
         }
 
-        let fmt = {
+        const fmt = {
             level: level.toUpperCase(),
             code: code,
             message
