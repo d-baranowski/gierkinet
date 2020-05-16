@@ -4,8 +4,6 @@ import {authorizeThunk, selectAuthIsLoggedIn} from "./authSlice";
 import Logger from "src/feature/log/Logger";
 import CenterIn from "../../components/CenterIn";
 import Spinner from "../loading/Spinner";
-import LoginCallbackHandler from "./LoginCallbackHandler";
-
 
 type Props = {
     isLoggedIn: boolean;

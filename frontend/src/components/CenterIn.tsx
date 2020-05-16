@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import styledComponentWithProps from "../style/styledComponentWithProps";
 import {NAV_HEIGHT} from "../feature/navigation/Navbar";

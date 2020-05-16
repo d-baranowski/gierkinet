@@ -1,14 +1,12 @@
-const puppeteer = require("puppeteer");
+import puppeteer, {Browser, Page} from "puppeteer";
 
 class Agnet {
-    async init(headless) {
+    browser: Browser|undefined;
+    page: Page|undefined;
+
+    async init(headless: boolean) {
         this.browser = await puppeteer.launch({ headless: headless });
         this.page = await this.browser.newPage();
-    }
-
-    async navigate(url) {
-        await this.page.goto(url);
-        return;
     }
 
     close() {
@@ -16,4 +14,4 @@ class Agnet {
     }
 }
 
-module.exports = Agnet
+module.exports = Agnet;

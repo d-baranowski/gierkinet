@@ -2,6 +2,7 @@ import React from 'react';
 import Link from "next/link";
 import styledComponentWithProps from "src/style/styledComponentWithProps";
 import styled from 'styled-components';
+import cleanClassName from "../util/cleanClassName";
 
 interface Props {
     src: string;
@@ -50,14 +51,16 @@ const GameTileContent = styledComponentWithProps(styled.div`
 
 const MenuTile: React.FunctionComponent<Props> = ({src, to, title}) => (
     <Link href={to}>
-        <Tile>
-            <ImageFrame>
-                <TileImage alt="" src={src}/>
-            </ImageFrame>
-            <GameTileContent>
-                <div>{title}</div>
-            </GameTileContent>
-        </Tile>
+        <div id={cleanClassName("menu-tile-to", to)}>
+            <Tile>
+                <ImageFrame>
+                    <TileImage alt="" src={src}/>
+                </ImageFrame>
+                <GameTileContent>
+                    <div>{title}</div>
+                </GameTileContent>
+            </Tile>
+        </div>
     </Link>
 );
 

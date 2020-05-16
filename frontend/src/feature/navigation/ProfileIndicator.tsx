@@ -10,7 +10,7 @@ type Props = {
 
 const ProfileIndicator = (props: Props) => {
     if (props.picture) {
-        return <ProfilePicture src={props.picture} alt="Profile Picture"/>
+        return <ProfilePicture className="profile-picture-loaded" src={props.picture} alt="Profile Picture"/>
     } else {
         return (<PersonIco/>)
     }
