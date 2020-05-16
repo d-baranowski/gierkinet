@@ -7,7 +7,14 @@ const Nexus = devices['Nexus 10'];
 const GalaxyNote3 = devices['Galaxy Note 3'];
 
 describe("Open ProntoTools Website", () => {
-    const url = "http://localhost:3000";
+    const url = process.env.PAGE_ADDRESS;
+
+    expect(url).toBeTruthy();
+
+    if (!url) {
+        return;
+    }
+
     let agents: Agent[] = [];
     const creds = getUserCredentials();
 
