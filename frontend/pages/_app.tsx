@@ -10,8 +10,23 @@ import {ThemeProvider} from "styled-components";
 
 
 class AppOverride extends App<ReduxWrapperAppProps<RootState>> {
+
+    componentDidMount(): void {
+        const isProd = process.env.NODE_ENV === 'production';
+
+        if (isProd) {
+            return;
+        }
+
+        if (typeof window != "undefined") {
+            // @ts-ignore
+            window.DEV_ONLY_STORE = this.props.store;
+        }
+    }
+
     render() {
         const {Component, pageProps, router, store} = this.props;
+
         return (
             <Provider store={store}>
                 <ThemeProvider theme={theme}>
