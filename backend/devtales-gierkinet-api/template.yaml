@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  devtales-gierkinet-api
+
+  SAM Template for devtales-gierkinet-api
+
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  Apis:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowHeaders:
+          - "*"
+        AllowMethods:
+          - GET
+          - HEAD
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowOrigins:
+          - "*"
+      StageName: !Ref Environment
+      DefaultRouteSettings:
+        DetailedMetricsEnabled: true
+
+  RequestQuestIdentityTokenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: cmd/request-guest-identity-token/
+      Handler: request-guest-identity-token
+      Runtime: go1.x
+      Events:
+        Request:
+          Type: HttpApi
+          Properties:
+            Path: /user/guest-identity-token
+            Method: GET
+            ApiId: !Ref Apis
+      Environment:
+        Variables:
+          PARAM1: VALUE
