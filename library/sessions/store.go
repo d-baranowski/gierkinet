@@ -58,3 +58,18 @@ func (store SessionStore) Get(id string) (session SessionRecord, err error) {
 	err = dynamodbattribute.UnmarshalMap(gio.Item, &session)
 	return
 }
+
+func (store SessionStore) Create(record SessionRecord) (err error) {
+	r, err := dynamodbattribute.MarshalMap(record)
+
+	if err != nil {
+		return
+	}
+
+	_, err = store.client.PutItem(&dynamodb.PutItemInput{
+		Item:      r,
+		TableName: store.tableName,
+	})
+
+	return
+}
