@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"library/config"
 	"library/database"
+	"time"
 )
 
 type SessionStoreConfig struct {
@@ -48,14 +49,21 @@ func key(sessionId string) map[string]*dynamodb.AttributeValue {
 
 func (store SessionStore) Get(id string) (session SessionRecord, err error) {
 	gio, err := store.client.GetItem(&dynamodb.GetItemInput{
-		TableName:      store.tableName,
-		ConsistentRead: aws.Bool(false),
-		Key:            key(id),
+		Key:                      key(id),
+		TableName:                store.tableName,
+		ConsistentRead:           aws.Bool(false),
 	})
+
 	if err != nil {
 		return
 	}
+
 	err = dynamodbattribute.UnmarshalMap(gio.Item, &session)
+
+	if session.TTL < time.Now().Unix() {
+		session = SessionRecord{}
+	}
+
 	return
 }
 

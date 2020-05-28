@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/segmentio/ksuid"
 	"library/database"
+	"time"
 )
 
 type SessionFields struct {
@@ -14,6 +15,7 @@ type SessionFields struct {
 
 type SessionRecord struct {
 	SessionFields
+	database.TimeToLive
 	database.Record
 }
 
@@ -38,8 +40,9 @@ func NewSessionRecord(fields SessionFields) SessionRecord {
 
 	result.BasePopulate()
 	result.PK = SessionRecordPK(fields.SessionID)
-	result.PK = SessionRecordSK(fields.SessionID)
+	result.SK = SessionRecordSK(fields.SessionID)
 	result.Type = "Session"
+	result.TTL = time.Now().Add(24 * time.Hour).Unix()
 
 	return result
 }

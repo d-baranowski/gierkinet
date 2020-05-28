@@ -35,19 +35,13 @@ func TestIntegrationReadSession(t *testing.T) {
 		return
 	}
 
-	expected := SessionRecord{
-		SessionFields: SessionFields{
-			SessionID: "1cP7biMd8ys6BWtd7JsYaejQoPe",
-			Username:  "danny",
-			Picture:   "https://lh3.googleusercontent.com/a-/AOh14GjEUZoVup3yWpFBsHLTb3GPnQbDNAhwTmsLHi38=s96-c",
-		},
-		Record: database.Record{
-			PK:        "SESSION#1cP7biMd8ys6BWtd7JsYaejQoPe",
-			SK:        "SESSION#1cP7biMd8ys6BWtd7JsYaejQoPe",
-			Type:      "Session",
-			Timestamp: "2020-05-25T14:53:48.720Z",
-		},
-	}
+	expected := NewSessionRecord(SessionFields{
+		SessionID: "1cP7biMd8ys6BWtd7JsYaejQoPe",
+		Username:  "danny",
+		Picture:   "https://lh3.googleusercontent.com/a-/AOh14GjEUZoVup3yWpFBsHLTb3GPnQbDNAhwTmsLHi38=s96-c",
+	})
+	expected.Timestamp = "2020-05-25T14:53:48.720Z"
+	expected.TTL = 2590736671
 
 	assert.Equal(t, expected, actual)
 
@@ -72,19 +66,13 @@ func TestIntegrationCreateSession(t *testing.T) {
 		return
 	}
 
-	expected := SessionRecord{
-		SessionFields: SessionFields{
-			SessionID: "1cP7biMd8ys6BWtd7JsYaejQoPe",
-			Username:  "danny",
-			Picture:   "https://lh3.googleusercontent.com/a-/AOh14GjEUZoVup3yWpFBsHLTb3GPnQbDNAhwTmsLHi38=s96-c",
-		},
-		Record: database.Record{
-			PK:        "SESSION#1cP7biMd8ys6BWtd7JsYaejQoPe",
-			SK:        "SESSION#1cP7biMd8ys6BWtd7JsYaejQoPe",
-			Type:      "Session",
-			Timestamp: "2020-05-25T14:53:48.720Z",
-		},
-	}
+	expected := NewSessionRecord(SessionFields{
+		SessionID: "1cP7biMd8ys6BWtd7JsYaejQoPe",
+		Username:  "danny",
+		Picture:   "https://lh3.googleusercontent.com/a-/AOh14GjEUZoVup3yWpFBsHLTb3GPnQbDNAhwTmsLHi38=s96-c",
+	})
+	expected.Timestamp = "2020-05-25T14:53:48.720Z"
+	expected.TTL = 2590736671
 
 	err = underTest.Create(expected)
 
