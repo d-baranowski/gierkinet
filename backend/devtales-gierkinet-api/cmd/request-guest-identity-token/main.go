@@ -1,51 +1,37 @@
 package main
 
 import (
-	"errors"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-
+	"devtales-gierkinet-api/pkg/response"
+	"encoding/json"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/d-baranowski/gierkinetlib/config"
+	"github.com/d-baranowski/gierkinetlib/sessions"
+	log "github.com/sirupsen/logrus"
 )
 
-var (
-	// DefaultHTTPGetAddress Default Address
-	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
+func handler(events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	session, err := sessions.GenerateGuestSession(log.StandardLogger())
 
-	// ErrNoIP No IP found in response
-	ErrNoIP = errors.New("No IP in HTTP response")
-
-	// ErrNon200Response non 200 status code in response
-	ErrNon200Response = errors.New("Non 200 Response found")
-)
-
-func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	// Create a guest user record
-
-	resp, err := http.Get(DefaultHTTPGetAddress)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
+		return response.ServerSideError, nil
 	}
 
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
+	output, err := json.Marshal(session)
 
-	ip, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
+		log.WithFields(log.Fields{ "error": err, "code": "dW6sFVI" }).Fatalf("Failed to marshal session")
+		return response.ServerSideError, nil
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, %v", string(ip)),
+		Body:      string(output),
 		StatusCode: 200,
 	}, nil
+}
+
+func init() {
+	config.ConfigureLogrus(log.StandardLogger())
 }
 
 func main() {

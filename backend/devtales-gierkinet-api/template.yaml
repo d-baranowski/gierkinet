@@ -9,6 +9,16 @@ Globals:
   Function:
     Timeout: 5
 
+Parameters:
+  Environment:
+    Type: String
+    Description: "test/prod etc"
+    Default: "prod"
+  Product:
+    Type: String
+    Description: "Name of the Product"
+    Default: "gierkinet"
+
 Resources:
   Apis:
     Type: AWS::Serverless::HttpApi
@@ -44,4 +54,9 @@ Resources:
             ApiId: !Ref Apis
       Environment:
         Variables:
-          PARAM1: VALUE
+          PRODUCT: !Ref Product
+          ENVIRONMENT: !Ref Environment
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Sub "${Product}-${Environment}-dynamodb-main"
+
