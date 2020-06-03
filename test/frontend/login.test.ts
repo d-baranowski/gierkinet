@@ -6,7 +6,7 @@ const iPhonex = devices['iPhone X'];
 const Nexus = devices['Nexus 10'];
 const GalaxyNote3 = devices['Galaxy Note 3'];
 
-describe("Open ProntoTools Website", () => {
+describe("Login", () => {
     const url = process.env.PAGE_ADDRESS;
 
     expect(url).toBeTruthy();
@@ -32,7 +32,9 @@ describe("Open ProntoTools Website", () => {
     });
 
     test("Users can login", async () => {
-        await loginJourney(agents[0], {credentials: creds[0]});
-        await loginJourney(agents[1], {credentials: creds[1]});
+        await  Promise.all([
+            loginJourney(agents[0], {credentials: creds[0]}),
+            loginJourney(agents[1], {credentials: creds[1]})
+        ]);
     }, 120 * 1000);
 });
